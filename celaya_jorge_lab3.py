@@ -94,7 +94,7 @@ def analysis(df: pd.DataFrame) -> bool:
     print('\n\tTotal Deaths:')
     print(tot_death.head(n))
 
-    print('\n\t New Deaths:')
+    print('\n\tNew Deaths:')
     print(new_death.head(n))
 
     return True
@@ -109,8 +109,10 @@ def output(df: pd.DataFrame) -> bool:
             ].sort_values(by='submission_date')
 
     # Rename some columns here
+    df.rename(columns={'submission_date': 'Date', 'new_case': 'New Cases'})
 
     # Compute 7-day avg and historic cases here
+    df['7-Day Moving Avg'] = []
 
     # Format Date column here
 
