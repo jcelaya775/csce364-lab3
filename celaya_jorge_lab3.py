@@ -102,21 +102,26 @@ def analysis(df: pd.DataFrame) -> bool:
 
 # Processes and outputs data to create a Covid data file
 def output(df: pd.DataFrame) -> bool:
+    # create new columns
     df['7-Day Moving Avg'] = 1
     df['Historic Cases'] = 1
 
     df = df[['state', 'submission_date', 'new_case', '7-Day Moving Avg', 'Historic Cases']
             ].sort_values(by='submission_date')
 
-    # Rename some columns here
+    # Rename some columns
     df.rename(columns={'submission_date': 'Date', 'new_case': 'New Cases'})
 
-    # Compute 7-day avg and historic cases here
-    df['7-Day Moving Avg'] = []
+    # Compute 7-day avg and historic cases
+    df.apply(lambda row: print(df['7-Day Moving Avg']
+                                 [row.name:row.name+7].sum()) / 7, axis=1)
+    # df.drop(df.index[-7], inplace=True)  # drop last 7 rows
 
-    # Format Date column here
+    print(df)
 
-    # Export DataFrame to csv here
+    # Format Date column
+
+    # df.to_csv('output.csv')
 
     return
 
