@@ -3,14 +3,16 @@ Jorge Celaya
 NCC CSCE 364; Spring 2022
 Lab #3; celaya_jorge_lab3.py
 
-Code Summary: Provides an overview summary of national and 
-state covid statistics 
+Code Summary: Provides an overview summary of national and
+state covid statistics
 """
 
 import pandas as pd
 import requests
 import sys
 from io import StringIO
+
+from sqlalchemy import column
 
 
 '''
@@ -101,25 +103,28 @@ def analysis(df: pd.DataFrame) -> bool:
 
 
 # Processes and outputs data to create a Covid data file
-def output(df: pd.DataFrame) -> bool:
+def write_to_file(df: pd.DataFrame) -> bool:
     # create new columns
-    df['7-Day Moving Avg'] = 1
-    df['Historic Cases'] = 1
+    df['7-Day Moving Avg'] = 0
+    df['Historic Cases'] = 0
 
     df = df[['state', 'submission_date', 'new_case', '7-Day Moving Avg', 'Historic Cases']
             ].sort_values(by='submission_date')
 
     # Rename some columns
-    df.rename(columns={'submission_date': 'Date', 'new_case': 'New Cases'})
+    df.rename(columns={'state': 'State', 'submission_date': 'Date',
+              'new_case': 'New Cases'}, inplace=True)
 
     # Compute 7-day avg and historic cases
-    df.apply(lambda row: print(df['7-Day Moving Avg']
-                                 [row.name:row.name+7].sum()) / 7, axis=1)
-    # df.drop(df.index[-7], inplace=True)  # drop last 7 rows
+    # 7-day avg is calculated by averaging the previous 7 days
+    # and rounding to the nearest whole number
+    df['7-Day Moving Avg'] = df.apply(lambda row: round(df['New Cases']
+                                      [row.name:row.name+7].mean()), axis=1)
 
     print(df)
 
     # Format Date column
+    df['Date'] = df['Date'].apply(lambda date: date.dt.strftime('%b'))
 
     # df.to_csv('output.csv')
 
@@ -131,7 +136,7 @@ def main():
         'https://data.cdc.gov/api/views/9mfq-cb36/rows.csv?accessType=DOWNLOAD')
     df = pd.read_csv(StringIO(req.text))
 
-    output(df)
+    write_to_file(df)
 
 
 main()
